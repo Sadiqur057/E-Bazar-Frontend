@@ -7,20 +7,43 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LoaderCircle } from "lucide-react";
+import toast from "react-hot-toast";
+import apiPublic from "@/interceptors/axiosInstancePublic";
 
 const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const [formData, setFormData] = useState({
+    email: "",
+    name: "",
+    phone: "",
+    password: "",
+  });
 
-  async function onSubmit(event) {
+  const handleChange = async (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const onSubmit = async (event) => {
     event.preventDefault();
-    setIsLoading(true);
-
-    setTimeout(() => {
+    console.log(formData);
+    try {
+      setIsLoading(true);
+      const res = await apiPublic.post("/auth/register", formData);
+      if (res?.data?.success) {
+        toast.success("Account created successfully. Please login");
+        router.push("/login");
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message);
+    } finally {
       setIsLoading(false);
-      router.push("/");
-    }, 3000);
-  }
+    }
+  };
 
   return (
     <div className="bg-gray-50 py-16">
@@ -35,52 +58,64 @@ const Register = () => {
                 <Label htmlFor="name">Name</Label>
                 <Input
                   id="name"
+                  name="name"
+                  onChange={handleChange}
                   placeholder="John Doe"
                   type="text"
                   autoCapitalize="words"
                   autoComplete="name"
                   autoCorrect="off"
                   disabled={isLoading}
+                  required
                 />
               </div>
               <div className="grid gap-3">
                 <Label htmlFor="phone">Phone</Label>
                 <Input
                   id="phone"
+                  name="phone"
                   placeholder="(123) 456-7890"
                   type="tel"
+                  onChange={handleChange}
                   autoCapitalize="none"
                   autoComplete="tel"
                   autoCorrect="off"
                   disabled={isLoading}
+                  required
                 />
               </div>
               <div className="grid gap-3">
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
+                  name="email"
                   placeholder="name@example.com"
                   type="email"
+                  onChange={handleChange}
                   autoCapitalize="none"
                   autoComplete="email"
                   autoCorrect="off"
                   disabled={isLoading}
+                  required
                 />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="password">Password</Label>
                 <Input
                   id="password"
+                  name="password"
                   placeholder="Create a password"
                   type="password"
+                  onChange={handleChange}
                   autoCapitalize="none"
                   autoComplete="new-password"
                   disabled={isLoading}
+                  required
                 />
               </div>
               <Button disabled={isLoading}>
                 {isLoading && (
-                  <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+                  <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                 )}
                 Create Account
               </Button>

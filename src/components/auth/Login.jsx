@@ -5,14 +5,42 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LoaderCircle } from "lucide-react";
+import apiPublic from "@/interceptors/axiosInstancePublic";
+import { setCookie } from "cookies-next";
+import toast from "react-hot-toast";
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
 
-  async function onSubmit(event) {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const handleChange = async (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const onSubmit = async (event) => {
     event.preventDefault();
-    setIsLoading(true);
-  }
+    try {
+      setIsLoading(true);
+      const res = await apiPublic.post("/auth/login", formData);
+      if (res?.data?.success) {
+        toast.success("Login Successful");
+        setCookie("ebazar", res?.data?.token);
+        window.location.reload();
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <div className="bg-gray-50 py-16">
       <div className="max-w-md px-4 mx-auto">
@@ -26,27 +54,35 @@ const Login = () => {
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
+                  name="email"
                   placeholder="name@example.com"
                   type="email"
                   autoCapitalize="none"
                   autoComplete="email"
+                  onChange={handleChange}
                   autoCorrect="off"
                   disabled={isLoading}
+                  required
                 />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="password">Password</Label>
                 <Input
                   id="password"
+                  name="password"
                   placeholder="Enter your password"
                   type="password"
+                  onChange={handleChange}
                   autoCapitalize="none"
                   autoComplete="current-password"
                   disabled={isLoading}
+                  required
                 />
               </div>
               <Button disabled={isLoading}>
-                {isLoading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                {isLoading && (
+                  <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                )}
                 Login
               </Button>
             </div>
@@ -95,7 +131,10 @@ const Login = () => {
           </Button>
           <div className="text-center text-sm">
             Don&apos;t have an account?{" "}
-            <Link href="/register" className="font-medium hover:underline text-primary">
+            <Link
+              href="/register"
+              className="font-medium hover:underline text-primary"
+            >
               Register
             </Link>
           </div>
