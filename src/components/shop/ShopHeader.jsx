@@ -27,7 +27,7 @@ export function ShopHeader() {
             <ShopSidebar className="mt-8" />
           </SheetContent>
         </Sheet>
-        <p className="text-sm text-muted-foreground">52 Results Found</p>
+        <p className="text-sm text-muted-foreground hidden md:block">52 Results Found</p>
       </div>
       <Select defaultValue="latest">
         <SelectTrigger className="w-[160px]">

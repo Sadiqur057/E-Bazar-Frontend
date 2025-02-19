@@ -61,7 +61,7 @@ const products = [
 
 const Shop = () => {
   return (
-    <div className="container py-4">
+    <div className="container pb-8">
       <div className="lg:grid lg:grid-cols-[240px,1fr] gap-10">
         <ShopSidebar className="hidden lg:block" />
         <div>

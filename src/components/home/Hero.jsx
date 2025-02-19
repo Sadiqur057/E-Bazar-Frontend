@@ -37,7 +37,7 @@ const features = [
 
 const Hero = () => {
   return (
-    <section className="container pt-12 space-y-8">
+    <section className="container space-y-8 md:pt-12">
       <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">
         <div className="relative rounded-xl overflow-hidden bg-gradient-to-r from-[#005C2B] to-[#0064009e] text-white">
           <div className="px-6 lg:px-12 py-8 lg:py-16 flex flex-col justify-center h-full">
@@ -62,7 +62,7 @@ const Hero = () => {
           </div>
           <div className="absolute bottom-0 right-0 h-full w-full flex justify-end">
             <Image
-              className="object-contain object-right-bottom w-1/2"
+              className="object-contain object-right-bottom w-3/4 md:w-1/2"
               src={BannerImg}
               alt="Fresh food"
             />
