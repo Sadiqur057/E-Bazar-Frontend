@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { ShoppingCart, Plus, Minus } from "lucide-react";
 import { Button } from "../ui/button";
+import ViewProduct from "./ViewProduct";
 const ProductSectionCart = () => {
   const [quantity, setQuantity] = useState(1);
   const incrementQuantity = () => setQuantity((prev) => prev + 1);
@@ -15,7 +16,7 @@ const ProductSectionCart = () => {
         <Button
           variant="outline"
           size="icon"
-          className="h-8 w-8 p-0"
+          className="h-10 w-10 p-0"
           onClick={decrementQuantity}
         >
           <Minus className="h-4 w-4" />
@@ -24,15 +25,18 @@ const ProductSectionCart = () => {
         <Button
           variant="outline"
           size="icon"
-          className="h-8 w-8 p-0"
+          className="h-10 w-10 p-0"
           onClick={incrementQuantity}
         >
           <Plus className="h-4 w-4" />
         </Button>
       </div>
-      <Button className="bg-primary hover:bg-primary/90" onClick={addToCart}>
-        <ShoppingCart className="h-5 w-5" />
-      </Button>
+      <div className="flex gap-3">
+        <Button className="px-3.5" onClick={addToCart}>
+          <ShoppingCart className="h-5 w-5" />
+        </Button>
+        <ViewProduct />
+      </div>
     </div>
   );
 };
