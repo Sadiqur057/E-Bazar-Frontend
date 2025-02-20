@@ -1,17 +1,18 @@
 import { BlogSection } from "@/components/home/BlogSection";
 import Hero from "@/components/home/Hero";
 import { ProductSection } from "@/components/home/ProductSection";
-import { Footer } from "@/components/layout/Footer";
-import Navbar from "@/components/layout/Navbar/Navbar";
 import React from "react";
 
-const page = () => {
+const page = async () => {
+  const url = `${process.env.NEXT_PUBLIC_API_URL}/product`;
+  const res = await fetch(url,{ cache: 'no-cache' });
+  const products = await res.json();
+
   return (
     <>
       <Hero />
-      <ProductSection />
+      <ProductSection products={products?.data} />
       <BlogSection />
-      <Footer />
     </>
   );
 };
