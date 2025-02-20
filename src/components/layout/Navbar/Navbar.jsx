@@ -1,36 +1,49 @@
 "use client";
 
 import Link from "next/link";
+import { Heart, Leaf, MapPin, Menu } from "lucide-react";
+import { useEffect, useState } from "react";
+import NavAuth from "./NavAuth";
+import CartSection from "./CartSection";
 import {
-  Heart,
-  Leaf,
-  MapPin,
-  Menu,
-  Phone,
-  ShoppingCart,
-  X,
-} from "lucide-react";
-import { useState } from "react";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import useFetchCurrencyData from "@/hooks/useFetchCurrencyData";
+import { getCookie } from "cookies-next";
 
-const TopBar = () => (
-  <div className="hidden sm:block bg-gray-900 text-white py-2">
-    <div className="container mx-auto flex justify-between items-center">
-      <div className="flex items-center gap-2 text-sm text-gray-200">
-        <MapPin size={14} />
-        <span>Lincoln- 344, Illinois, Chicago, USA</span>
-      </div>
-      <div className="flex items-center gap-2 text-sm">
-        <Link href="/signin" className="hover:text-primary">
-          Sign In
-        </Link>
-        <span>/</span>
-        <Link href="/signup" className="hover:text-primary">
-          Sign Up
-        </Link>
+const TopBar = () => {
+  const [hasToken, setHasToken] = useState(false);
+  useEffect(() => {
+    const token = getCookie("ebazar") || getCookie("e_bazar");
+    setHasToken(!!token); // Convert to boolean
+  }, []);
+
+  if (hasToken) return null;
+  return (
+    <div className="bg-gray-900 text-white py-2.5">
+      <div className="container mx-auto flex justify-between items-center">
+        <div className="hidden items-center gap-2 text-sm text-gray-200 md:flex">
+          <MapPin size={14} />
+          <span>Lincoln- 344, Illinois, Chicago, USA</span>
+        </div>
+        <div className="flex items-center gap-2 text-sm">
+          <Link href="/login" className="hover:text-primary">
+            Login
+          </Link>
+          <span>/</span>
+          <Link href="/register" className="hover:text-primary">
+            Register
+          </Link>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const SearchBar = () => (
   <div className="hidden lg:flex flex-1 max-w-sm mx-8">
@@ -47,33 +60,44 @@ const SearchBar = () => (
   </div>
 );
 
-const CartIcon = () => (
-  <Link href="/cart" className="flex items-center gap-3.5 border-l pl-4">
-    <div className="relative">
-      <ShoppingCart size={32} />
-      <span className="absolute -top-1 -right-1.5 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-        2
-      </span>
-    </div>
-    <div className="hidden sm:block">
-      <p className="text-[13px] mb-1 text-gray-500">Shopping cart:</p>
-      <p className="font-medium">$57.00</p>
-    </div>
-  </Link>
-);
-
 const NavigationLinks = ({ className, onClick }) => {
-  const links = ["Home", "Shop", "Pages", "Blog", "About Us", "Contact Us"];
+  // "Home", "Shop", "Pages", "Blog", "About Us", "Contact Us"
+  const links = [
+    {
+      name: "Home",
+      url: "/",
+    },
+    {
+      name: "Shop",
+      url: "/shop",
+    },
+    {
+      name: "Pages",
+      url: "/",
+    },
+    {
+      name: "Blog",
+      url: "/",
+    },
+    {
+      name: "About us",
+      url: "/",
+    },
+    {
+      name: "Contact us",
+      url: "/",
+    },
+  ];
   return (
     <ul className={className}>
       {links.map((link) => (
-        <li key={link}>
+        <li key={link?.name}>
           <Link
-            href={`/${link.toLowerCase().replace(/\s+/g, "")}`}
+            href={link?.url}
             className="flex h-full items-center hover:text-primary"
             onClick={onClick}
           >
-            {link}
+            {link?.name}
           </Link>
         </li>
       ))}
@@ -82,19 +106,42 @@ const NavigationLinks = ({ className, onClick }) => {
 };
 
 export default function Navbar() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
+  const { currency, symbol, conversionRate } = useFetchCurrencyData();
+
+  console.log(currency, symbol, conversionRate);
   return (
     <header className="w-full bg-white fixed md:static top-0 left-0 right-0 z-50">
       <TopBar />
       <div className="">
-        <div className="flex items-center justify-between py-5 container">
-          <button
-            className="md:hidden p-2 hover:bg-gray-100 rounded-lg"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? <X /> : <Menu />}
-          </button>
+        <div className="flex items-center justify-between py-4 container">
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden p-2 hover:bg-gray-100 rounded-lg"
+              >
+                <Menu className="!h-8 !w-8" />
+                <span className="sr-only">Toggle menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[300px] sm:w-[300px] p-0">
+              <SheetHeader className="p-4 border-b">
+                <SheetTitle>Menu</SheetTitle>
+              </SheetHeader>
+              <div className="flex flex-col justify-between min-h-[calc(100vh-60px)] ">
+                <NavigationLinks
+                  className="space-y-4 p-4"
+                  onClick={() => setIsOpen(false)}
+                />
+                <div className="border-t p-4">
+                  <NavAuth />
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
           <Link href="/" className="flex items-center gap-2">
             <Leaf className="h-8 w-8 text-primary" />
             <span className="text-2xl font-semibold text-primary">E-Bazar</span>
@@ -102,40 +149,20 @@ export default function Navbar() {
           <SearchBar />
           <div className="flex items-center">
             <Link
-              href="/wishlist"
+              href="/dashboard/wishlist"
               className="hidden sm:flex items-center gap-2 hover:text-primary pr-4"
             >
               <Heart size={32} />
             </Link>
-            <CartIcon />
+            <CartSection />
           </div>
         </div>
-        <nav className="hidden md:block border-y  border-gray-200/60">
+        <nav className="hidden md:block border-y border-gray-200/60">
           <div className="flex items-center justify-between py-3 container">
             <NavigationLinks className="flex gap-8 h-12" />
-            <div className="flex gap-2">
-              <Phone />
-              <p className="font-semibold">(219) 555-0114</p>
-            </div>
+            <NavAuth />
           </div>
         </nav>
-        {isMenuOpen && (
-          <div className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-50">
-            <div className="fixed left-0 top-0 bottom-0 w-[300px] bg-white shadow-2xl p-4">
-              <button
-                className="p-2 hover:bg-gray-100 rounded-lg mb-4"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                ✖
-              </button>
-              <h3 className="text-2xl py-4 mb-4">Menu</h3>
-              <NavigationLinks
-                className="space-y-4"
-                onClick={() => setIsMenuOpen(false)}
-              />
-            </div>
-          </div>
-        )}
       </div>
     </header>
   );
