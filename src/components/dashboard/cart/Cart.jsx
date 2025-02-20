@@ -1,50 +1,70 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import demoImg from "@/assets/images/apple.png";
 import Image from "next/image";
 import { Minus, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import api from "@/interceptors/axiosInstance";
+import toast from "react-hot-toast";
+import useFetchCurrencyData from "@/hooks/useFetchCurrencyData";
 
 const Cart = () => {
-  const [items, setItems] = useState([
-    {
-      id: 1,
-      name: "Green Capsicum",
-      price: 14.0,
-      quantity: 5,
-      image: "",
-    },
-    {
-      id: 2,
-      name: "Red Capsicum",
-      price: 14.0,
-      quantity: 1,
-      image: "",
-    },
-  ]);
+  const [items, setItems] = useState([]);
 
-  const updateQuantity = (id, change) => {
-    setItems(
-      items.map((item) => {
-        if (item.id === id) {
-          const newQuantity = Math.max(1, item.quantity + change);
-          return { ...item, quantity: newQuantity };
-        }
-        return item;
-      })
-    );
+  const { conversionRate, symbol } = useFetchCurrencyData();
+
+  const fetchCartItem = async () => {
+    try {
+      const res = await api.get("/cart");
+      if (res?.data?.success) {
+        setItems(res?.data?.data?.products);
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message);
+    }
   };
 
-  const removeItem = (id) => {
-    setItems(items.filter((item) => item.id !== id));
+  const updateQuantity = async (id, changes) => {
+    try {
+      const res = await api.patch(`/cart/update-quantity/${id}`, {
+        quantity: changes,
+      });
+      if (res?.data?.success) {
+        setItems(res?.data?.data?.products);
+        toast.success(res?.data?.message);
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message);
+    }
   };
 
-  const subtotal = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+  const removeItem = async (id) => {
+    try {
+      const res = await api.delete(`/cart/remove/${id}`);
+      if (res?.data?.success) {
+        setItems(res?.data?.data?.products);
+        toast.success(res?.data?.message);
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchCartItem();
+  }, []);
+
+  const subtotal = items?.reduce(
+    (sum, item) =>
+      sum +
+        (item?.product?.price || 0) *
+          conversionRate *
+          item.quantity.toFixed(2) || 0,
     0
   );
+
   const shipping = "Free";
   const total = subtotal;
 
@@ -71,30 +91,32 @@ const Cart = () => {
             </div>
           </div>
           <div>
-            {items.map((item) => (
+            {items?.map((item) => (
               <div
-                key={item.id}
+                key={item?._id}
                 className="grid md:grid-cols-5 gap-4 items-center py-5 border-b"
               >
                 <div className="col-span-2 flex items-center gap-4">
                   <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-muted">
                     <Image
-                      src={item.image || demoImg}
-                      alt={item.name}
+                      src={item?.product?.image || demoImg}
+                      alt={item?.product?.name}
                       fill
                       className="object-contain"
                     />
                   </div>
                   <div>
-                    <h3 className="font-medium">{item.name}</h3>
+                    <h3 className="font-medium">{item?.product?.name}</h3>
                     <div className="md:hidden mt-1 text-sm text-muted-foreground">
-                      ${item.price.toFixed(2)}
+                      {symbol}{" "}
+                      {item?.product?.price * conversionRate.toFixed(2) || 0}
                     </div>
                   </div>
                 </div>
 
                 <div className="hidden md:block text-muted-foreground">
-                  ${item.price.toFixed(2)}
+                  {symbol}{" "}
+                  {(item?.product?.price * conversionRate).toFixed(2) || 0}
                 </div>
 
                 <div className="flex items-center">
@@ -103,16 +125,16 @@ const Cart = () => {
                       variant="outline"
                       size="icon"
                       className="h-8 w-8 rounded-none"
-                      onClick={() => updateQuantity(item.id, -1)}
+                      onClick={() => updateQuantity(item?.product?._id, -1)}
                     >
                       <Minus className="h-4 w-4" />
                     </Button>
-                    <div className="w-12 text-center">{item.quantity}</div>
+                    <div className="w-12 text-center">{item?.quantity}</div>
                     <Button
                       variant="outline"
                       size="icon"
                       className="h-8 w-8 rounded-none"
-                      onClick={() => updateQuantity(item.id, 1)}
+                      onClick={() => updateQuantity(item?.product?._id, 1)}
                     >
                       <Plus className="h-4 w-4" />
                     </Button>
@@ -121,13 +143,20 @@ const Cart = () => {
 
                 <div className="flex items-center justify-between gap-4">
                   <div className="font-medium">
-                    ${(item.price * item.quantity).toFixed(2)}
+                    {symbol}{" "}
+                    {item?.product?.price
+                      ? (
+                          item?.product?.price *
+                          item.quantity *
+                          conversionRate
+                        ).toFixed(2)
+                      : "0.00"}
                   </div>
                   <Button
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8"
-                    onClick={() => removeItem(item.id)}
+                    onClick={() => removeItem(item?.product?._id)}
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -137,14 +166,15 @@ const Cart = () => {
           </div>
         </div>
 
-        {/* Cart Total */}
         <div className="flex justify-end mt-8">
           <div className="rounded-lg w-full sm:w-[380px] pt-6 pb-8 sm:p-6 flex-col flex justify-end">
             <h2 className="text-xl font-semibold mb-4">Cart Total</h2>
             <div className="space-y-4">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Subtotal:</span>
-                <span className="font-medium">${subtotal.toFixed(2)}</span>
+                <span className="font-medium">
+                  {symbol} {subtotal}
+                </span>
               </div>
               <Separator />
               <div className="flex justify-between">
@@ -154,7 +184,9 @@ const Cart = () => {
               <Separator />
               <div className="flex justify-between text-lg font-semibold">
                 <span>Total:</span>
-                <span>${total.toFixed(2)}</span>
+                <span>
+                  {symbol} {total}
+                </span>
               </div>
               <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
                 Proceed to checkout
