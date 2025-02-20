@@ -104,7 +104,7 @@ const AllOrders = () => {
                       <SelectGroup>
                         <SelectLabel>Status</SelectLabel>
                         {status?.map((item, idx) => (
-                          <SelectItem value={item}>{item}</SelectItem>
+                          <SelectItem value={item} key={idx}>{item}</SelectItem>
                         ))}
                       </SelectGroup>
                     </SelectContent>
