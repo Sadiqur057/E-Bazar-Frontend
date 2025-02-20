@@ -9,13 +9,7 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = getCookie("ebazar");
-  const location = getCookie("loc_ebazar");
-
-  if (location) {
-    config.params = { ...config.params, location };
-  }
-
+  const token = getCookie("ebazar") || getCookie("e_bazar");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
