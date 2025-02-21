@@ -38,7 +38,9 @@ const CartSection = () => {
       return dispatch(removeFromCart(id));
     } catch (error) {
       console.error(error);
-      toast.error("Something went wrong. Please try again later");
+      return toast.error(
+        error?.response?.data?.message || "something went wrong"
+      );
     }
   };
 
@@ -87,8 +89,15 @@ const CartSection = () => {
                   />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-medium">{item?.product.name}</h3>
-                  <p className="text-sm text-muted-foreground">
+                  <h3 className="font-medium">{item?.product?.name}</h3>{" "}
+                  {item?.product?.stock === 0 ? (
+                    <span className="bg-red-200/90 rounded-md text-sm px-1 text-red-700">
+                      stock out
+                    </span>
+                  ) : (
+                    ""
+                  )}
+                  <p className="text-sm text-muted-foreground pt-1">
                     {item?.quantity} × {symbol}{" "}
                     {(item?.product?.price * conversionRate).toFixed(2)}
                   </p>

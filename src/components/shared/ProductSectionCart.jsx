@@ -51,8 +51,9 @@ const ProductSectionCart = ({ product }) => {
         toast.success(res?.data?.message);
         dispatch(addToCartAction({ product, quantity }));
       } catch (error) {
-        toast.error("Something went wrong");
-        console.error(error);
+        return toast.error(
+          error?.response?.data?.message || "something went wrong"
+        );
       }
     }
   };
@@ -78,7 +79,11 @@ const ProductSectionCart = ({ product }) => {
           <Plus className="h-4 w-4" />
         </Button>
       </div>
-      <Button className="px-3.5" onClick={addToCart}>
+      <Button
+        className="px-3.5"
+        onClick={addToCart}
+        disabled={product?.stock === 0}
+      >
         <ShoppingCart className="h-5 w-5" />
       </Button>
     </div>

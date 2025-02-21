@@ -90,7 +90,7 @@ const AddProduct = ({ closeModal,setProducts }) => {
       closeModal();
     } catch (error) {
       console.error("Add Product Error:", error);
-      toast.error("Something went wrong");
+      return toast.error(error?.response?.data?.message|| "something went wrong");
     } finally {
       setIsSubmitting(false);
     }

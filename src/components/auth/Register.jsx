@@ -39,7 +39,7 @@ const Register = () => {
         router.push("/login");
       }
     } catch (error) {
-      toast.error(error?.response?.data?.message);
+      return toast.error(error?.response?.data?.message|| "something went wrong");
     } finally {
       setIsLoading(false);
     }
