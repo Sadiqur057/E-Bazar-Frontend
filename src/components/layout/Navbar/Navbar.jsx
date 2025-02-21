@@ -22,8 +22,6 @@ const TopBar = () => {
     const token = getCookie("ebazar") || getCookie("e_bazar");
     setHasToken(!!token); // Convert to boolean
   }, []);
-
-  if (hasToken) return null;
   return (
     <div className="bg-gray-900 text-white py-2.5">
       <div className="container mx-auto flex justify-between items-center">
@@ -31,15 +29,19 @@ const TopBar = () => {
           <MapPin size={14} />
           <span>Lincoln- 344, Illinois, Chicago, USA</span>
         </div>
-        <div className="flex items-center gap-2 text-sm">
-          <Link href="/login" className="hover:text-primary">
-            Login
-          </Link>
-          <span>/</span>
-          <Link href="/register" className="hover:text-primary">
-            Register
-          </Link>
-        </div>
+        {hasToken ? (
+          ""
+        ) : (
+          <div className="flex items-center gap-2 text-sm">
+            <Link href="/login" className="hover:text-primary">
+              Login
+            </Link>
+            <span>/</span>
+            <Link href="/register" className="hover:text-primary">
+              Register
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -61,7 +63,6 @@ const SearchBar = () => (
 );
 
 const NavigationLinks = ({ className, onClick }) => {
-  // "Home", "Shop", "Pages", "Blog", "About Us", "Contact Us"
   const links = [
     {
       name: "Home",
