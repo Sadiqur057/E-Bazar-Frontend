@@ -95,22 +95,22 @@ const Products = () => {
           </TableHeader>
           <TableBody>
             {products?.map((product) => (
-              <TableRow key={product.id}>
+              <TableRow key={product?._id}>
                 <TableCell>
                   <div className="relative w-16 h-16">
                     <Image
-                      src={product.image || "/placeholder.svg"}
-                      alt={product.name}
+                      src={product?.image || "/placeholder.svg"}
+                      alt={product?.name}
                       fill
                       className="object-contain rounded-md"
                     />
                   </div>
                 </TableCell>
-                <TableCell className="font-medium">{product.name}</TableCell>
+                <TableCell className="font-medium">{product?.name}</TableCell>
                 <TableCell>
-                  {symbol} {conversionRate * product?.price}
+                  {symbol} {(conversionRate * product?.price).toFixed(2)}
                 </TableCell>
-                <TableCell>{product.stock}</TableCell>
+                <TableCell>{product?.stock}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end">
                     <Button

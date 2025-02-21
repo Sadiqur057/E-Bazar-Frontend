@@ -2,7 +2,7 @@ import React from "react";
 import ProductSectionCart from "./ProductSectionCart";
 import ImageComponent from "./ImageComponent";
 
-import { Star } from "lucide-react";
+import { Package, Star } from "lucide-react";
 import ViewProduct from "./ViewProduct";
 import ProductPriceSection from "./ProductPriceSection";
 
@@ -21,14 +21,14 @@ const ProductCard = ({ product }) => {
           <Star className="fill-orange-400 text-orange-400 w-5" />
           <span className="font-semibold text-primary">5.0</span>
         </p>
-        <p className="absolute bottom-3 left-4 flex gap-2 items-center">
+        <p className="absolute top-4 left-4 flex gap-2 items-center">
           {product?.stock === 0 ? (
             <span className="bg-red-200/60 rounded-md text-sm px-2 py-1 text-red-700">
               stock out
             </span>
           ) : (
-            <span className="bg-green-200/60 rounded-md text-sm px-2 py-1 text-green-700">
-              available: {product?.stock}
+            <span className="bg-green-200/60 rounded-md text-sm px-1.5 py-1 text-primary flex gap-1.5 shadow-md items-center font-medium">
+              <Package size={20}/> {product?.stock}
             </span>
           )}
         </p>
