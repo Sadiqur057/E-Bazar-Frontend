@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, UserRound, UserRoundCog } from "lucide-react";
 import apiPublic from "@/interceptors/axiosInstancePublic";
 import { setCookie } from "cookies-next";
 import toast from "react-hot-toast";
@@ -82,6 +82,7 @@ const Login = () => {
                 <Input
                   id="email"
                   name="email"
+                  value={formData?.email}
                   placeholder="name@example.com"
                   type="email"
                   autoCapitalize="none"
@@ -97,6 +98,7 @@ const Login = () => {
                 <Input
                   id="password"
                   name="password"
+                  value={formData?.password}
                   placeholder="Enter your password"
                   type="password"
                   onChange={handleChange}
@@ -152,6 +154,33 @@ const Login = () => {
             </svg>{" "}
             Google
           </Button>
+          <div className="flex gap-4">
+            <Button
+              variant="outline"
+              type="button"
+              disabled={isLoading}
+              className="flex w-full gap-2 items-center"
+              onClick={() =>
+                setFormData({
+                  email: "sadiqur057@gmail.com",
+                  password: "123456",
+                })
+              }
+            >
+              <UserRound /> Customer Login
+            </Button>
+            <Button
+              variant="outline"
+              type="button"
+              disabled={isLoading}
+              className="flex w-full gap-2 items-center"
+              onClick={() =>
+                setFormData({ email: "admin@gmail.com", password: "123456" })
+              }
+            >
+              <UserRoundCog /> Admin Login
+            </Button>
+          </div>
           <div className="text-center text-sm">
             Don&apos;t have an account?{" "}
             <Link
