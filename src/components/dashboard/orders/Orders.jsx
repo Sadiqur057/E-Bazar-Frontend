@@ -8,94 +8,34 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import useFetchCurrencyData from "@/hooks/useFetchCurrencyData";
+import api from "@/interceptors/axiosInstance";
 import { Eye } from "lucide-react";
-const orders = [
-  {
-    id: "3933",
-    date: "4 April, 2021",
-    total: "$135.00",
-    products: 5,
-    status: "Processing",
-  },
-  {
-    id: "5045",
-    date: "27 Mar, 2021",
-    total: "$25.00",
-    products: 1,
-    status: "on the way",
-  },
-  {
-    id: "5028",
-    date: "20 Mar, 2021",
-    total: "$250.00",
-    products: 4,
-    status: "Completed",
-  },
-  {
-    id: "4600",
-    date: "19 Mar, 2021",
-    total: "$35.00",
-    products: 1,
-    status: "Completed",
-  },
-  {
-    id: "4152",
-    date: "18 Mar, 2021",
-    total: "$578.00",
-    products: 13,
-    status: "Completed",
-  },
-  {
-    id: "8811",
-    date: "10 Mar, 2021",
-    total: "$345.00",
-    products: 7,
-    status: "Completed",
-  },
-  {
-    id: "3536",
-    date: "5 Mar, 2021",
-    total: "$560.00",
-    products: 2,
-    status: "Completed",
-  },
-  {
-    id: "1374",
-    date: "27 Feb, 2021",
-    total: "$560.00",
-    products: 2,
-    status: "Completed",
-  },
-  {
-    id: "7791",
-    date: "25 Feb, 2021",
-    total: "$560.00",
-    products: 2,
-    status: "Completed",
-  },
-  {
-    id: "4846",
-    date: "24 Feb, 2021",
-    total: "$23.00",
-    products: 1,
-    status: "Completed",
-  },
-  {
-    id: "5948",
-    date: "20 Feb, 2021",
-    total: "$23.00",
-    products: 1,
-    status: "Completed",
-  },
-  {
-    id: "1577",
-    date: "12 Oct, 2020",
-    total: "$23.00",
-    products: 1,
-    status: "Completed",
-  },
-];
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+
 const Orders = () => {
+  const [orders, setOrders] = useState([]);
+  const { symbol, conversionRate } = useFetchCurrencyData();
+  const fetchOrder = async () => {
+    try {
+      const res = await api.get("/order");
+      console.log(res?.data);
+      if (!res?.data?.success) {
+        toast.error(res?.data?.message || "Something went wrong");
+      }
+      setOrders(res?.data?.data);
+    } catch (error) {
+      return toast.error(
+        error?.response?.data?.message || "something went wrong"
+      );
+    }
+  };
+
+  useEffect(() => {
+    fetchOrder();
+  }, []);
+
   return (
     <div className="flex-1 w-full pb-8">
       <h2 className="text-2xl md:text-3xl font-semibold text-gray-800 mb-6">
@@ -108,41 +48,37 @@ const Orders = () => {
               <TableRow>
                 <TableHead>ID</TableHead>
                 <TableHead className="hidden lg:block py-5">Date</TableHead>
-                <TableHead>Total</TableHead>
+                <TableHead>Amount</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {orders.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell className="font-medium">#{order.id}</TableCell>
+                <TableRow key={order._id}>
+                  <TableCell className="font-medium">
+                    #{order._id.slice(0, 6)}...
+                  </TableCell>
                   <TableCell className="hidden lg:block">
-                    {order.date}
+                    {new Date(order?.createdAt).toLocaleDateString()}
                   </TableCell>
                   <TableCell>
-                    {order.total}
+                    {symbol} {(order?.totalAmount * conversionRate).toFixed(2)}
                   </TableCell>
                   <TableCell>
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        order.status === "Processing"
+                        order?.status === "Shipped"
                           ? "bg-yellow-100 text-yellow-800"
-                          : order.status === "on the way"
-                          ? "bg-blue-100 text-blue-800"
-                          : "bg-green-100 text-green-800"
+                          : order?.status === "Delivered"
+                          ? "bg-green-100 text-green-800"
+                          : order?.status === "Confirmed"
+                          ? "bg-gray-100 text-gray-800"
+                          : "bg-blue-100 text-blue-800"
                       }`}
                     >
-                      {order.status}
+                      {order?.status}
                     </span>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                    >
-                      <Eye />
-                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
