@@ -96,7 +96,12 @@ export function Footer() {
               </Link>
             </li>
             <li>
-              <a href="/cart" className="hover:underline">
+              <a href="/dashboard/wishlist" className="hover:underline">
+                Wishlist
+              </a>
+            </li>
+            <li>
+              <a href="/dashboard/cart" className="hover:underline">
                 Cart
               </a>
             </li>
