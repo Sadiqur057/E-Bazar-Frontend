@@ -2,7 +2,6 @@
 
 import { createSlice } from "@reduxjs/toolkit";
 import { getCookie, setCookie } from "cookies-next";
-import toast from "react-hot-toast";
 
 const initialState = {
   cartItems: [],
@@ -42,6 +41,19 @@ const cartSlice = createSlice({
       (state.cartItems = action.payload.products),
         setCookie("cart", JSON.stringify(state.cartItems));
     },
+    updateQuantity: (state, action) => {
+      console.log("called", action.payload);
+      const { id, changes } = action.payload;
+      const existingItem = state.cartItems.find(
+        (item) => item.product._id === id
+      );
+
+      if (existingItem) {
+        const newQuantity = existingItem.quantity + changes;
+        existingItem.quantity = newQuantity > 0 ? newQuantity : 1;
+        setCookie("cart", JSON.stringify(state.cartItems));
+      }
+    },
     removeFromCart: (state, action) => {
       state.cartItems = state.cartItems.filter(
         (item) => item.product._id !== action.payload
@@ -56,6 +68,11 @@ const cartSlice = createSlice({
   },
 });
 
-export const { addToCart, removeFromCart, clearCart, addAllToCart } =
-  cartSlice.actions;
+export const {
+  addToCart,
+  removeFromCart,
+  clearCart,
+  addAllToCart,
+  updateQuantity,
+} = cartSlice.actions;
 export default cartSlice.reducer;
