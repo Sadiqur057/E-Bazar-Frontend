@@ -132,7 +132,7 @@ export default function Navbar() {
               <SheetHeader className="p-4 border-b">
                 <SheetTitle>Menu</SheetTitle>
               </SheetHeader>
-              <div className="flex flex-col justify-between min-h-[calc(100vh-60px)] ">
+              <div className="flex flex-col justify-between min-h-[calc(100vh-180px)] ">
                 <NavigationLinks
                   className="space-y-4 p-4"
                   onClick={() => setIsOpen(false)}
