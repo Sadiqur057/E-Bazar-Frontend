@@ -13,7 +13,7 @@ import apiPublic from "@/interceptors/axiosInstancePublic";
 import api from "@/interceptors/axiosInstance";
 import toast from "react-hot-toast";
 
-const AddProduct = ({ closeModal,setProducts }) => {
+const AddProduct = ({ closeModal, setProducts }) => {
   const [imagePreview, setImagePreview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef(null);
@@ -75,22 +75,23 @@ const AddProduct = ({ closeModal,setProducts }) => {
       if (!res?.data?.success) {
         throw new Error("Image upload failed");
       }
-      setFormData({
-        ...formData,
-        image: res.data.data.url,
-      });
-      console.log("Image uploaded successfully:", res.data);
 
-      const productRes = await api.post("/product/add", formattedData);
+      const imageUrl = res.data.data.url; 
+
+      const updatedData = {
+        ...formattedData, 
+        image: imageUrl, 
+      };
+      const productRes = await api.post("/product/add", updatedData);
       if (!productRes?.data?.success) {
-        throw new Error("Product not created");
+        throw new Error("Something went wrong. Please try again");
       }
       toast.success(productRes?.data?.message);
       setProducts((prev) => [...prev, productRes?.data?.data]);
       closeModal();
     } catch (error) {
       console.error("Add Product Error:", error);
-      return toast.error(error?.response?.data?.message|| "something went wrong");
+      return toast.error("Something went wrong. Please try again");
     } finally {
       setIsSubmitting(false);
     }
@@ -112,7 +113,7 @@ const AddProduct = ({ closeModal,setProducts }) => {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="price">Price</Label>
+            <Label htmlFor="price">Price ($)</Label>
             <Input
               id="price"
               onChange={handleInputChange}
