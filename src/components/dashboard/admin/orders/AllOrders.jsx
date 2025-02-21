@@ -77,6 +77,7 @@ const AllOrders = () => {
               <TableHead>ID</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Amount</TableHead>
+              <TableHead>Payment Status</TableHead>
               <TableHead>Status</TableHead>
             </TableRow>
           </TableHeader>
@@ -89,6 +90,17 @@ const AllOrders = () => {
                 <TableCell>{order?.user?.name}</TableCell>
                 <TableCell>
                   {symbol} {(order?.totalAmount * conversionRate).toFixed(2)}
+                </TableCell>
+                <TableCell>
+                  <span
+                    className={`px-1 rounded-md ${
+                      order?.paymentStatus === "paid"
+                        ? "bg-green-100 text-primary"
+                        : "bg-red-100 text-red-700"
+                    }`}
+                  >
+                    {order?.paymentStatus}
+                  </span>
                 </TableCell>
                 <TableCell>
                   <Select
@@ -104,7 +116,9 @@ const AllOrders = () => {
                       <SelectGroup>
                         <SelectLabel>Status</SelectLabel>
                         {status?.map((item, idx) => (
-                          <SelectItem value={item} key={idx}>{item}</SelectItem>
+                          <SelectItem value={item} key={idx}>
+                            {item}
+                          </SelectItem>
                         ))}
                       </SelectGroup>
                     </SelectContent>
