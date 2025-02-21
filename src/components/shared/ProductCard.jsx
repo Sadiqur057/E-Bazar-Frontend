@@ -21,12 +21,23 @@ const ProductCard = ({ product }) => {
           <Star className="fill-orange-400 text-orange-400 w-5" />
           <span className="font-semibold text-primary">5.0</span>
         </p>
+        <p className="absolute bottom-3 left-4 flex gap-2 items-center">
+          {product?.stock === 0 ? (
+            <span className="bg-red-200/60 rounded-md text-sm px-2 py-1 text-red-700">
+              stock out
+            </span>
+          ) : (
+            <span className="bg-green-200/60 rounded-md text-sm px-2 py-1 text-green-700">
+              available: {product?.stock}
+            </span>
+          )}
+        </p>
       </div>
       <div className="p-4">
-        <h3 className="font-semibold text-lg mb-1">{product?.name}</h3>
+        <h3 className="font-semibold text-lg">{product?.name}</h3>{" "}
         <ProductPriceSection price={product?.price} />
         <div className="flex items-center gap-3">
-          <ProductSectionCart product={product}/>
+          <ProductSectionCart product={product} />
           <ViewProduct product={product} />
         </div>
       </div>
