@@ -12,7 +12,7 @@ A modern eCommerce platform with seamless cart management, secure authentication
   - Email: `admin@gmail.com`
   - Password: `123456`
 - **Customer:**
-  - Email: `customer@gmail.com`
+  - Email: `sadiqur057@gmail.com`
   - Password: `123456`
 
 ## 📂 GitHub Repositories
@@ -55,6 +55,7 @@ A modern eCommerce platform with seamless cart management, secure authentication
 ✅ **Admin:**
 
 - Dashboard to **manage products, users, and orders efficiently**
+- **Automated email notifications** to users about their **product status updates**  
 
 ## 📌 Installation & Setup
 
