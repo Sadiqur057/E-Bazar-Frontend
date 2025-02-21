@@ -13,6 +13,7 @@ import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import api from "@/interceptors/axiosInstance";
 import { Modal } from "./Modal";
+import { useRouter } from "next/navigation";
 
 const ViewProduct = ({ product }) => {
   const { symbol, conversionRate } = useFetchCurrencyData();
@@ -24,6 +25,8 @@ const ViewProduct = ({ product }) => {
   const images = [product.image, product.image, product.image];
   const hasToken = getCookie("ebazar") || getCookie("e_bazar");
   const [IsModalOpen, setIsModalOpen] = React.useState(false);
+  const router = useRouter();
+
   const incrementQuantity = () =>
     setQuantity((prev) => {
       if (prev >= product.stock) {
@@ -62,9 +65,30 @@ const ViewProduct = ({ product }) => {
         dispatch(addToCartAction({ product, quantity }));
         toast.success(res?.data?.message);
       } catch (error) {
-        toast.error("Something went wrong");
+        return toast.error(error?.response?.data?.message|| "something went wrong");
         console.error(error);
       }
+    }
+  };
+
+  const handleAddToWishList = async (id) => {
+    console.log("id", id);
+    if (!id) return;
+    if (!hasToken) {
+      toast.error("Please login first.");
+      return router.push("/login");
+    }
+    try {
+      const res = await api.post(`/wishlist/add`, { productId: id });
+      console.log(res);
+      if (!res?.data?.success) {
+        throw new Error(res?.data?.message, "Unable to add in wishlist");
+      }
+
+      toast.success(res?.data?.message);
+    } catch (error) {
+      console.error(error);
+      return toast.error(error?.response?.data?.message|| "something went wrong");
     }
   };
 
@@ -217,7 +241,7 @@ const ViewProduct = ({ product }) => {
                 variant="outline"
                 size="icon"
                 className="h-12 w-12"
-                onClick={() => setIsWishlist(!isWishlist)}
+                onClick={() => handleAddToWishList(product?._id)}
               >
                 <Heart
                   className={`h-5 w-5 ${
