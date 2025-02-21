@@ -3,17 +3,17 @@ import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import toast from "react-hot-toast";
 import apiPublic from "@/interceptors/axiosInstancePublic";
 
-const CheckoutForm = ({ processCheckout }) => {
+const CheckoutForm = ({ processCheckout, data }) => {
   const [error, setError] = useState("");
   const [clientSecret, setClientSecret] = useState("");
   const [transactionId, setTransactionId] = useState("");
   const user = {
-    name: "Sadiqur Rahman",
-    email: "sadiqur057@gmail.com",
+    name: data?.name,
+    email: data?.email,
   };
   const stripe = useStripe();
   const elements = useElements();
-  const totalPrice = 40;
+  const totalPrice = data?.totalPrice;
 
   useEffect(() => {
     if (totalPrice > 0) {

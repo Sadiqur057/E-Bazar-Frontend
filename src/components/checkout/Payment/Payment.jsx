@@ -5,7 +5,7 @@ import CheckoutForm from "./CheckoutForm";
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PAYMENT_GATEWAY_KEY
 );
-const Payment = ({ handleOpen, processCheckout }) => {
+const Payment = ({ handleOpen, processCheckout, data }) => {
   return (
     <div className="px-10 py-20">
       <div>
@@ -13,7 +13,8 @@ const Payment = ({ handleOpen, processCheckout }) => {
           <CheckoutForm
             handleOpen={handleOpen}
             processCheckout={processCheckout}
-          ></CheckoutForm>
+            data={data}
+          />
         </Elements>
       </div>
     </div>

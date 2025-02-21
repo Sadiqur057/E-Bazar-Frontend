@@ -33,11 +33,11 @@ const Checkout = () => {
     state: "",
     zipCode: "",
     orderNotes: "",
+    totalAmount: "",
   });
   const [cartItems, setCartItems] = useState([]);
 
   const [paymentMethod, setPaymentMethod] = useState("Cash on Delivery");
-  const [paymentStatus, setPaymentStatus] = useState("unpaid");
 
   const [isFormValid, setIsFormValid] = useState(false);
 
@@ -374,6 +374,11 @@ const Checkout = () => {
                 <PaymentOptions
                   isFormValid={isFormValid}
                   processCheckout={handleSubmit}
+                  data={{
+                    name: formData?.name,
+                    email: formData?.email,
+                    totalPrice: total,
+                  }}
                 />
               ) : (
                 <Button

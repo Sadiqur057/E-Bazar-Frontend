@@ -3,7 +3,7 @@ import { Modal } from "../shared/Modal";
 import Payment from "./Payment/Payment";
 import { Button } from "../ui/button";
 
-const PaymentOptions = ({ processCheckout, isFormValid }) => {
+const PaymentOptions = ({ processCheckout, isFormValid, data }) => {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <>
@@ -22,7 +22,7 @@ const PaymentOptions = ({ processCheckout, isFormValid }) => {
         onClose={() => setIsOpen(false)}
         size="lg"
       >
-        <Payment processCheckout={processCheckout} />
+        <Payment processCheckout={processCheckout} data={data} />
       </Modal>
     </>
   );
