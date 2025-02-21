@@ -91,7 +91,7 @@ const NavAuth = () => {
     <div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <p className="cursor-pointer p-3 rounded-full border bg-gray-50">
+          <p className="cursor-pointer p-3 rounded-full border bg-gray-50 w-fit">
             <User />
           </p>
         </DropdownMenuTrigger>
