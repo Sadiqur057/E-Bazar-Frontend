@@ -25,6 +25,7 @@ const Checkout = () => {
     companyName: "",
     country: "",
     state: "",
+    name: "",
     email: "",
     phone: "",
     streetAddress: "",
@@ -49,6 +50,11 @@ const Checkout = () => {
       const res = await api.get("/cart");
       if (res?.data?.success) {
         setCartItems(res?.data?.data?.products);
+        setFormData((prev) => ({
+          ...prev,
+          name: res?.data?.data?.user?.name,
+          email: res?.data?.data?.user?.email,
+        }));
       }
     } catch (error) {
       console.error(error);
@@ -238,6 +244,7 @@ const Checkout = () => {
                     id="email"
                     name="email"
                     type="text"
+                    disabled
                     value={formData.email}
                     onChange={handleInputChange}
                     placeholder="Email address"

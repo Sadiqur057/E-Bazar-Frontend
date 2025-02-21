@@ -1,5 +1,5 @@
 "use client";
-
+import emailjs from "@emailjs/browser";
 import { useEffect, useState } from "react";
 import {
   Table,
@@ -27,6 +27,7 @@ const AllOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const { conversionRate, symbol } = useFetchCurrencyData();
+
   const fetchOrderItems = async () => {
     setLoading(true);
     try {
@@ -45,15 +46,29 @@ const AllOrders = () => {
   const status = ["Confirmed", "Processing", "Shipped", "Delivered"];
 
   const handleStatusChange = async (value, id) => {
-    console.log(value, id);
     try {
       const res = await api.patch(`/order/update-status/${id}`, {
         status: value,
       });
       if (res?.data?.success) {
         toast.success(res?.data?.message);
+        const user = res?.data?.data?.user;
+        const templateParams = {
+          to_email: user?.email,
+          to_name: user?.name,
+          message: `Congratulations! Your order status has been updated to ${value}.`,
+        };
+        const emailRes = await emailjs.send(
+          process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
+          process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID,
+          templateParams,
+          process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
+        );
+        console.log("checking", emailRes);
+        toast.success("Email sent successfully!");
       }
     } catch (error) {
+      console.error(error);
       toast.error(error?.response?.data?.message);
     } finally {
       setLoading(false);
