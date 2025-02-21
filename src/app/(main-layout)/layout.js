@@ -11,7 +11,7 @@ export default function RootLayout({ children }) {
   return (
     <StoreProvider>
       <Navbar />
-      <main className="pt-24 md:pt-0">{children}</main>
+      <main className="pt-32 md:pt-0">{children}</main>
       <Footer />
     </StoreProvider>
   );
