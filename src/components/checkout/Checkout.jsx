@@ -2,27 +2,23 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import useFetchCurrencyData from "@/hooks/useFetchCurrencyData";
 import toast from "react-hot-toast";
 import api from "@/interceptors/axiosInstance";
 import { clearCart } from "@/redux/slices/cartSlice";
+import { useRouter } from "next/navigation";
+import PaymentOptions from "./PaymentOptions";
 
 const Checkout = () => {
   const { symbol, conversionRate } = useFetchCurrencyData();
   const dispatch = useDispatch();
+  const router = useRouter();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -36,17 +32,35 @@ const Checkout = () => {
     state: "",
     zipCode: "",
     orderNotes: "",
-    paymentMethod: "Cash on Delivery",
   });
   const [cartItems, setCartItems] = useState([]);
 
-  const carts = useSelector((state) => state.cart.cartItems);
+  const [paymentMethod, setPaymentMethod] = useState("Cash on Delivery");
+  const [paymentStatus, setPaymentStatus] = useState("unpaid");
+
+  const [isFormValid, setIsFormValid] = useState(false);
+
   useEffect(() => {
-    setCartItems(carts);
-  }, [carts]);
+    setIsFormValid(validateForm());
+  }, [formData, paymentMethod]);
+
+  const fetchCartItem = async () => {
+    try {
+      const res = await api.get("/cart");
+      if (res?.data?.success) {
+        setCartItems(res?.data?.data?.products);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(error?.response?.data?.message);
+    }
+  };
+  useEffect(() => {
+    fetchCartItem();
+  }, []);
 
   const total = useMemo(() => {
-    return cartItems.reduce(
+    return cartItems?.reduce(
       (sum, item) =>
         (sum =
           +(item?.product?.price || 0) *
@@ -62,34 +76,63 @@ const Checkout = () => {
       ...prev,
       [name]: value,
     }));
-  });
+  }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const validateForm = () => {
+    if (!cartItems) return false;
+    const requiredFields = [
+      formData?.firstName,
+      formData?.lastName,
+      formData?.streetAddress,
+      formData?.country,
+      formData?.state,
+      formData?.zipCode,
+      formData?.email,
+      formData?.phone,
+      paymentMethod,
+    ];
+
+    const isValidated = requiredFields.every(
+      (field) => field && field.trim() !== ""
+    );
+
+    if (!isValidated) {
+      return false;
+    }
+    return true;
+  };
+
+  const handleSubmit = async (paymentStatus) => {
     const data = {
       shippingAddress: `${formData?.streetAddress}, ${formData?.state} ${formData?.country}`,
-      paymentMethod: formData?.paymentMethod,
+      paymentMethod: paymentMethod,
+      paymentStatus: paymentStatus,
       products: cartItems?.map((item) => ({
         product: item?.product?._id,
         quantity: item?.quantity,
       })),
     };
+    console.log("Checkout", data);
     try {
       const res = await api.post("/order/add", data);
       if (!res?.data?.success) {
         toast.error(res?.data?.message || "Something went wrong");
       }
+      console.log("checking red", res);
       toast.success(res?.data?.message);
       dispatch(clearCart());
+      router.push("/dashboard/orders");
     } catch (error) {
       console.error(error);
-      toast.error("Something went wrong");
+      return toast.error(
+        error?.response?.data?.message || "something went wrong"
+      );
     }
   };
 
   return (
     <div>
-      <form onSubmit={handleSubmit} className="grid gap-8 xl:grid-cols-3">
+      <div className="grid gap-8 xl:grid-cols-3">
         <div className="xl:col-span-2">
           <div className="rounded-xl bg-gray-50 p-6">
             <h1 className="mb-6 text-2xl font-semibold tracking-tight">
@@ -194,7 +237,7 @@ const Checkout = () => {
                   <Input
                     id="email"
                     name="email"
-                    type="email"
+                    type="text"
                     value={formData.email}
                     onChange={handleInputChange}
                     placeholder="Email address"
@@ -207,7 +250,7 @@ const Checkout = () => {
                   <Input
                     id="phone"
                     name="phone"
-                    type="tel"
+                    type="text"
                     value={formData.phone}
                     onChange={handleInputChange}
                     placeholder="Phone number"
@@ -253,14 +296,14 @@ const Checkout = () => {
                         <div className="h-16 w-16 overflow-hidden rounded-lg border bg-muted p-1">
                           <Image
                             src={item?.product?.image}
-                            alt="Green Capsicum"
+                            alt={item?.product?.name}
                             width={60}
                             height={60}
                             className="h-full w-full object-contain"
                           />
                         </div>
                         <div>
-                          <h3 className="font-medium">Green Capsicum</h3>
+                          <h3 className="font-medium">{item?.product?.name}</h3>
                           <p className="text-sm text-muted-foreground">
                             Quantity: {item?.quantity}
                           </p>
@@ -278,7 +321,7 @@ const Checkout = () => {
                 <div className="flex justify-between">
                   <span className="text-base">Subtotal</span>
                   <span className="font-medium">
-                    {symbol} {total}
+                    {symbol} {total?.toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between mt-2">
@@ -288,7 +331,7 @@ const Checkout = () => {
                 <div className="flex justify-between mt-2 text-lg font-semibold">
                   <span>Total</span>
                   <span>
-                    {symbol} {total}
+                    {symbol} {total?.toFixed(2)}
                   </span>
                 </div>
               </div>
@@ -296,8 +339,9 @@ const Checkout = () => {
               <div className="space-y-4">
                 <h3 className="font-medium">Payment Method</h3>
                 <RadioGroup
-                  value={formData.paymentMethod}
-                  onValueChange={handleInputChange}
+                  value={paymentMethod}
+                  onValueChange={(value) => setPaymentMethod(value)}
+                  name="paymentMethod"
                 >
                   <div>
                     <RadioGroupItem value="Cash on Delivery" id="cod" />
@@ -319,18 +363,25 @@ const Checkout = () => {
                   </div>
                 </RadioGroup>
               </div>
-
-              <Button
-                type="submit"
-                size="lg"
-                className="w-full bg-green-600 hover:bg-green-700"
-              >
-                Place Order
-              </Button>
+              {paymentMethod === "Online Payment" ? (
+                <PaymentOptions
+                  isFormValid={isFormValid}
+                  processCheckout={handleSubmit}
+                />
+              ) : (
+                <Button
+                  onClick={() => handleSubmit("unpaid")}
+                  size="lg"
+                  className="w-full bg-primary hover:bg-primary/90"
+                  disabled={!isFormValid}
+                >
+                  Place Order
+                </Button>
+              )}
             </div>
           </div>
         </div>
-      </form>
+      </div>
     </div>
   );
 };
