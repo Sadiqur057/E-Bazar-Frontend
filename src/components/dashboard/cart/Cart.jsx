@@ -9,10 +9,13 @@ import { Separator } from "@/components/ui/separator";
 import api from "@/interceptors/axiosInstance";
 import toast from "react-hot-toast";
 import useFetchCurrencyData from "@/hooks/useFetchCurrencyData";
+import Link from "next/link";
+import { useDispatch } from "react-redux";
+import { updateQuantity } from "@/redux/slices/cartSlice";
 
 const Cart = () => {
   const [items, setItems] = useState([]);
-
+  const dispatch = useDispatch();
   const { conversionRate, symbol } = useFetchCurrencyData();
 
   const fetchCartItem = async () => {
@@ -26,7 +29,9 @@ const Cart = () => {
     }
   };
 
-  const updateQuantity = async (id, changes) => {
+  const handleUpdateQuantity = async (id, changes, currentQuantity) => {
+    if (currentQuantity === 1 && changes === -1)
+      return toast.error("invalid quantity");
     try {
       const res = await api.patch(`/cart/update-quantity/${id}`, {
         quantity: changes,
@@ -34,6 +39,7 @@ const Cart = () => {
       if (res?.data?.success) {
         setItems(res?.data?.data?.products);
         toast.success(res?.data?.message);
+        dispatch(updateQuantity({ id, changes }));
       }
     } catch (error) {
       toast.error(error?.response?.data?.message);
@@ -46,6 +52,7 @@ const Cart = () => {
       if (res?.data?.success) {
         setItems(res?.data?.data?.products);
         toast.success(res?.data?.message);
+        removeFromCart(id);
       }
     } catch (error) {
       toast.error(error?.response?.data?.message);
@@ -106,7 +113,10 @@ const Cart = () => {
                     />
                   </div>
                   <div>
-                    <h3 className="font-medium">{item?.product?.name}</h3>
+                    <div>
+                      <h3 className="font-medium">{item?.product?.name}</h3>
+                      {item?.product?.stock === 0 ? (<span className="bg-red-200/90 rounded-md text-sm px-1 text-red-700">stock out</span>) : ""}
+                    </div>
                     <div className="md:hidden mt-1 text-sm text-muted-foreground">
                       {symbol}{" "}
                       {item?.product?.price * conversionRate.toFixed(2) || 0}
@@ -124,8 +134,15 @@ const Cart = () => {
                     <Button
                       variant="outline"
                       size="icon"
+                      disabled={item?.quantity <= 1}
                       className="h-8 w-8 rounded-none"
-                      onClick={() => updateQuantity(item?.product?._id, -1)}
+                      onClick={() =>
+                        handleUpdateQuantity(
+                          item?.product?._id,
+                          -1,
+                          item?.quantity
+                        )
+                      }
                     >
                       <Minus className="h-4 w-4" />
                     </Button>
@@ -133,8 +150,15 @@ const Cart = () => {
                     <Button
                       variant="outline"
                       size="icon"
+                      disabled={item?.product?.stock <= item?.quantity}
                       className="h-8 w-8 rounded-none"
-                      onClick={() => updateQuantity(item?.product?._id, 1)}
+                      onClick={() =>
+                        handleUpdateQuantity(
+                          item?.product?._id,
+                          1,
+                          item?.quantity
+                        )
+                      }
                     >
                       <Plus className="h-4 w-4" />
                     </Button>
@@ -173,7 +197,7 @@ const Cart = () => {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Subtotal:</span>
                 <span className="font-medium">
-                  {symbol} {subtotal}
+                  {symbol} {subtotal?.toFixed(2)}
                 </span>
               </div>
               <Separator />
@@ -185,12 +209,14 @@ const Cart = () => {
               <div className="flex justify-between text-lg font-semibold">
                 <span>Total:</span>
                 <span>
-                  {symbol} {total}
+                  {symbol} {total?.toFixed(2)}
                 </span>
               </div>
-              <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
-                Proceed to checkout
-              </Button>
+              <Link href={"/dashboard/cart/checkout"}>
+                <Button className="w-full bg-primary hover:bg-primary/90 text-white mt-4">
+                  Proceed to checkout
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
