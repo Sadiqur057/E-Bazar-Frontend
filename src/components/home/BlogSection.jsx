@@ -8,21 +8,21 @@ const blogPosts = [
     description:
       "Discover delicious and nutritious recipes using organic ingredients that will boost your health and satisfy your taste buds.",
     image: blogImg1,
-    link: "/blog/organic-recipes",
+    link: "/",
   },
   {
     title: "The Benefits of Eating Seasonal Produce",
     description:
       "Learn why consuming seasonal fruits and vegetables is not only good for your health but also for the environment.",
     image: blogImg3,
-    link: "/blog/seasonal-produce",
+    link: "/",
   },
   {
     title: "How to Start Your Own Organic Garden",
     description:
       "Get tips and tricks on creating your own organic garden, from choosing the right plants to maintaining soil health.",
     image: blogImg1,
-    link: "/blog/organic-gardening",
+    link: "/",
   },
 ];
 
